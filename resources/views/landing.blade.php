@@ -92,7 +92,7 @@
             <div class="flex justify-between items-center h-20">
                 <!-- Logo -->
                 <a href="/" class="flex items-center">
-                    <img src="/images/logo.png" alt="IvoirePay Logo" class="h-20 w-auto">
+                    <img src="{{ asset('images/logo.png') }}" alt="IvoirePay Logo" class="h-20 w-auto">
                 </a>
 
                 <!-- Desktop Links -->
@@ -183,7 +183,7 @@
 
                 <div class="relative flex justify-center w-full" data-aos="zoom-in" data-aos-duration="1200">
                     <div class="relative z-10 w-full max-w-[400px] md:max-w-[500px] lg:max-w-[650px]">
-                        <img src="/images/mockup_new.png" alt="Phone Mockup" class="w-full h-auto mx-auto transition-transform hover:scale-105 duration-700 drop-shadow-2xl">
+                        <img src="{{ asset('images/mockup_new.png') }}" alt="Phone Mockup" class="w-full h-auto mx-auto transition-transform hover:scale-105 duration-700 drop-shadow-2xl">
                     </div>
                 </div>
             </div>
@@ -298,19 +298,19 @@
                     <!-- Original Set -->
                     <div class="flex gap-8 items-center">
                         <div class="group transition-all duration-500 flex flex-col items-center justify-center min-w-[280px] min-h-[160px]">
-                            <img src="/images/wave_logo.jpg" alt="Wave" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
+                            <img src="{{ asset('images/wave_logo.jpg') }}" alt="Wave" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
                         </div>
                         <div class="group transition-all duration-500 flex flex-col items-center justify-center min-w-[280px] min-h-[160px]">
-                            <img src="/images/mtn.jpg" alt="MTN" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
+                            <img src="{{ asset('images/mtn.jpg') }}" alt="MTN" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
                         </div>
                         <div class="group transition-all duration-500 flex flex-col items-center justify-center min-w-[280px] min-h-[160px]">
-                            <img src="/images/orange.jpg" alt="Orange" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
+                            <img src="{{ asset('images/orange.jpg') }}" alt="Orange" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
                         </div>
                         <div class="group transition-all duration-500 flex flex-col items-center justify-center min-w-[280px] min-h-[160px]">
-                            <img src="/images/djamo_logo.jpg" alt="Djamo" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
+                            <img src="{{ asset('images/djamo_logo.jpg') }}" alt="Djamo" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
                         </div>
                         <div class="group transition-all duration-500 flex flex-col items-center justify-center min-w-[280px] min-h-[160px]">
-                            <img src="/images/moov_logo.png" alt="Moov" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
+                            <img src="{{ asset('images/moov_logo.png') }}" alt="Moov" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
                         </div>
                     </div>
                     <!-- Duplicate Set for Seamless Loop -->
@@ -446,7 +446,7 @@
                 <!-- Brand -->
                 <div class="col-span-1 lg:col-span-1">
                     <div class="flex items-center mb-6">
-                        <img src="/images/logo.png" alt="IvoirePay Logo" class="h-14 w-auto">
+                        <img src="{{ asset('images/logo.png') }}" alt="IvoirePay Logo" class="h-14 w-auto">
                     </div>
                     <p class="text-white/60 text-sm leading-relaxed mb-8">
                         La solution de paiement par QR code leader en Afrique de l'Ouest. Transformez votre smartphone en terminal de paiement.
