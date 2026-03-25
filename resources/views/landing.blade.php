@@ -316,19 +316,19 @@
                     <!-- Duplicate Set for Seamless Loop -->
                     <div class="flex gap-8 items-center">
                         <div class="group transition-all duration-500 flex flex-col items-center justify-center min-w-[280px] min-h-[160px]">
-                            <img src="/images/wave_logo.jpg" alt="Wave" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
+                            <img src="{{ asset('images/wave_logo.jpg') }}" alt="Wave" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
                         </div>
                         <div class="group transition-all duration-500 flex flex-col items-center justify-center min-w-[280px] min-h-[160px]">
-                            <img src="/images/mtn.jpg" alt="MTN" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
+                            <img src="{{ asset('images/mtn.jpg') }}" alt="MTN" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
                         </div>
                         <div class="group transition-all duration-500 flex flex-col items-center justify-center min-w-[280px] min-h-[160px]">
-                            <img src="/images/orange.jpg" alt="Orange" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
+                            <img src="{{ asset('images/orange.jpg') }}" alt="Orange" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
                         </div>
                         <div class="group transition-all duration-500 flex flex-col items-center justify-center min-w-[280px] min-h-[160px]">
-                            <img src="/images/djamo_logo.jpg" alt="Djamo" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
+                            <img src="{{ asset('images/djamo_logo.jpg') }}" alt="Djamo" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
                         </div>
                         <div class="group transition-all duration-500 flex flex-col items-center justify-center min-w-[280px] min-h-[160px]">
-                            <img src="/images/moov_logo.png" alt="Moov" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
+                            <img src="{{ asset('images/moov_logo.png') }}" alt="Moov" class="h-24 w-auto object-contain transition-transform group-hover:scale-110 duration-500 logo-blend">
                         </div>
                     </div>
                 </div>
