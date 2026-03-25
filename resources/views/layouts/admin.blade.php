@@ -46,7 +46,7 @@
                     <!-- Logo -->
                     <div class="flex-shrink-0 flex items-center">
                         <a href="{{ route('admin.dashboard') }}" class="flex items-center">
-                            <img src="/images/logo.png" alt="IvoirePay" class="h-10 w-auto">
+                            <img src="{{ asset('images/logo.png') }}" alt="IvoirePay" class="h-10 w-auto">
                         </a>
                     </div>
 

@@ -19,7 +19,7 @@
         <!-- Logo IvoirePay -->
         <div class="text-center mb-10">
             <div class="inline-flex items-center justify-center mb-4">
-                <img src="/images/logo.png" alt="IvoirePay Logo" class="h-24 w-auto">
+                <img src="{{ asset('images/logo.png') }}" alt="IvoirePay Logo" class="h-24 w-auto">
             </div>
             <h1 class="text-2xl font-bold text-gray-900">Espace Administrateur</h1>
             <p class="text-gray-500 mt-2 text-sm leading-relaxed">
