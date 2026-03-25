@@ -91,7 +91,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-20">
                 <!-- Logo -->
-                <a href="/" class="flex items-center">
+                <a href="{{ url('/') }}" class="flex items-center">
                     <img src="{{ asset('images/logo.png') }}" alt="IvoirePay Logo" class="h-20 w-auto">
                 </a>
 
