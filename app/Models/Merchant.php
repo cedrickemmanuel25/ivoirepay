@@ -47,6 +47,10 @@ class Merchant extends Model
 
     public function getQrCodeUrlAttribute()
     {
-        return Storage::url($this->qr_code_path);
+        if (!$this->qr_code_path) {
+            return null;
+        }
+        // Use url() to build an absolute URL based on APP_URL (works in subdirectory)
+        return url(Storage::url($this->qr_code_path));
     }
 }
