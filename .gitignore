@@ -1,0 +1,37 @@
+# Root safety net — backend/ and mobile/ keep their own .gitignore
+
+# Secrets & local environments
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.jks
+*.keystore
+key.properties
+google-services.json
+GoogleService-Info.plist
+
+# Database dumps & exports (may contain real data)
+*.sql
+*.sql.gz
+*.sqlite
+*.sqlite3
+*.dump
+
+# Dependencies & build outputs
+node_modules/
+vendor/
+build/
+.dart_tool/
+
+# Logs & tool output
+*.log
+npm-debug.log*
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db

@@ -150,7 +150,7 @@
             <div class="space-y-4">
                 @foreach($merchant->kycDocuments as $doc)
                     <div class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm group cursor-pointer hover:border-secondary transition-colors"
-                         @click="documentModalOpen = true; currentImageUrl = '{{ Storage::url($doc->file_path) }}'; currentImageTitle = '{{ ucfirst($doc->document_type) }}'">
+                         @click="documentModalOpen = true; currentImageUrl = '{{ Storage::temporaryUrl($doc->file_path, now()->addMinutes(15)) }}'; currentImageTitle = '{{ ucfirst($doc->document_type) }}'">
                         
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-sm font-bold text-gray-800">{{ ucfirst($doc->document_type) }}</span>
@@ -161,7 +161,7 @@
                         
                         <div class="relative h-32 w-full bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
                             @if(in_array(pathinfo($doc->file_path, PATHINFO_EXTENSION), ['jpg', 'jpeg', 'png']))
-                                <img src="{{ Storage::url($doc->file_path) }}" alt="{{ $doc->document_type }}" class="object-cover h-full w-full group-hover:scale-105 transition-transform duration-300">
+                                <img src="{{ Storage::temporaryUrl($doc->file_path, now()->addMinutes(15)) }}" alt="{{ $doc->document_type }}" class="object-cover h-full w-full group-hover:scale-105 transition-transform duration-300">
                             @else
                                 <i class="fa-solid fa-file-pdf text-4xl text-red-400"></i>
                             @endif

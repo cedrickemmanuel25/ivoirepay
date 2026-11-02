@@ -35,10 +35,10 @@ class WithdrawalController extends Controller
             $query->whereDate('created_at', $request->date);
         }
         if ($request->filled('merchant')) {
-            $query->whereHas('merchant.user', function($q) use ($request) {
-                // Filter by business name or user name
-                $q->where('business_name', 'ilike', '%' . $request->merchant . '%')
-                  ->orWhere('name', 'ilike', '%' . $request->merchant . '%');
+            // Filter by business name or user name ('like' is case-insensitive on MySQL collations; 'ilike' is PostgreSQL-only)
+            $query->whereHas('merchant', function($q) use ($request) {
+                $q->where('business_name', 'like', '%' . $request->merchant . '%')
+                  ->orWhereHas('user', fn($uq) => $uq->where('name', 'like', '%' . $request->merchant . '%'));
             });
         }
 
@@ -84,12 +84,26 @@ class WithdrawalController extends Controller
             ], 400);
         }
 
-        DB::transaction(function () use ($withdrawal) {
-            $withdrawal->update(['status' => 'failed']);
-            
-            // Refund the merchant's balance 
-            $withdrawal->merchant()->increment('balance', $withdrawal->amount);
+        // Conditional update: a concurrent cancel or a running payout job cannot trigger a second refund
+        $cancelled = DB::transaction(function () use ($withdrawal) {
+            $updated = WithdrawalRequest::whereKey($withdrawal->id)
+                ->where('status', 'pending')
+                ->update(['status' => 'failed']);
+
+            if ($updated) {
+                // Refund the merchant's balance
+                $withdrawal->merchant()->increment('balance', $withdrawal->amount);
+            }
+
+            return (bool) $updated;
         });
+
+        if (! $cancelled) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Ce retrait a déjà été traité.'
+            ], 400);
+        }
 
         // Use custom reason if provided, or default reason
         $reason = $request->input('reason', 'Annulé par l\'administrateur.');

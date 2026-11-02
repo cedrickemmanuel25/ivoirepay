@@ -23,7 +23,7 @@ class AuthController extends Controller
 
     public function sendOtp(Request $request)
     {
-        \Log::info("sendOtp hit: " . json_encode($request->all()));
+        \Log::info("sendOtp hit", ['type' => $request->input('type')]);
         $request->validate([
             'phone' => [
                 'required', 
@@ -55,7 +55,8 @@ class AuthController extends Controller
             'attempts'   => 0,
         ]);
 
-        \Log::info("Envoi OTP : phone={$phone}, code={$code}");
+        // Never log the OTP itself: application logs are not a secret store
+        \Log::info("Envoi OTP : phone={$phone}");
         $sent = $this->smsService->sendOtp($phone, $code);
         \Log::info("Résultat envoi OTP : success=" . ($sent ? 'oui' : 'non'));
 
@@ -69,7 +70,7 @@ class AuthController extends Controller
 
     public function verifyOtp(Request $request)
     {
-        \Log::info("verifyOtp hit: " . json_encode($request->all()));
+        \Log::info("verifyOtp hit", ['type' => $request->input('type')]);
 
         // Backward compatibility: support 'otp_code' if 'code' is missing
         if (!$request->has('code') && $request->has('otp_code')) {
@@ -91,7 +92,7 @@ class AuthController extends Controller
             ->latest()
             ->first();
 
-        \Log::info("OTP lookup result for phone={$phone}, type={$request->type}: " . ($otp ? "found (code={$otp->code})" : "not found"));
+        \Log::info("OTP lookup result for phone={$phone}, type={$request->type}: " . ($otp ? "found" : "not found"));
 
         if (! $otp) {
             return response()->json(['message' => 'Code OTP introuvable ou déjà utilisé.'], 422);
@@ -185,7 +186,7 @@ class AuthController extends Controller
             'name'     => $request->name,
             'phone'    => $phone,
             'role'     => $request->role,
-            'pin_hash' => $request->pin ? Hash::make($request->pin, ['rounds' => 12]) : null,
+            'pin_hash' => $request->pin ? Hash::make($request->pin) : null,
             'is_active' => true,
             'phone_verified_at' => now(),
         ]);
@@ -264,7 +265,7 @@ class AuthController extends Controller
         ]);
 
         $request->user()->update([
-            'pin_hash' => Hash::make($request->pin, ['rounds' => 12]),
+            'pin_hash' => Hash::make($request->pin),
         ]);
 
         return response()->json(['message' => 'PIN configuré avec succès.']);
@@ -287,7 +288,7 @@ class AuthController extends Controller
         }
 
         $user->update([
-            'pin_hash' => Hash::make($request->new_pin, ['rounds' => 12]),
+            'pin_hash' => Hash::make($request->new_pin),
         ]);
 
         // Revoke all tokens to force re-login

@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Pay - Simplifiez vos paiements par QR Code</title>
+    <title>IvoirePay - Simplifiez vos paiements par QR Code</title>
     
     <!-- SEO Meta Tags -->
-    <meta name="description" content="QR Pay est la solution de paiement par QR code la plus rapide et sécurisée en Afrique de l'Ouest. Compatible avec Wave, Djamo et Moov Money.">
-    <meta name="keywords" content="QR Pay, paiement, QR code, Afrique, Wave, Djamo, Moov Money, fintech">
+    <meta name="description" content="IvoirePay est la solution de paiement par QR code la plus rapide et sécurisée en Afrique de l'Ouest. Compatible avec Wave, Djamo, Moov Money, Orange Money et MTN MoMo.">
+    <meta name="keywords" content="IvoirePay, paiement, QR code, Afrique, Wave, Djamo, Moov Money, Orange Money, MTN MoMo, fintech">
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/569/569501.png">
 
     <!-- Google Fonts: Plus Jakarta Sans -->
@@ -151,7 +151,7 @@
                         Encaissez vos paiements en <span class="text-secondary">un scan.</span>
                     </h1>
                     <p class="text-xl text-white/80 mb-10 max-w-lg leading-relaxed">
-                        QR Pay simplifie les transactions entre commerçants et clients. Plus besoin de monnaie, scannez et payez en 5 secondes avec vos applications préférées.
+                        IvoirePay simplifie les transactions entre commerçants et clients. Plus besoin de monnaie, scannez et payez en 5 secondes avec vos applications préférées.
                     </p>
                     
                     <div class="flex flex-wrap gap-4 mb-12">
@@ -213,7 +213,7 @@
                         <i class="fa-solid fa-store text-3xl text-primary group-hover:text-white transition-colors duration-500"></i>
                     </div>
                     <h4 class="text-xl font-bold mb-4">Générer le QR</h4>
-                    <p class="text-gray-600">Le commerçant génère un code QR statique ou dynamique via son application QR Pay.</p>
+                    <p class="text-gray-600">Le commerçant génère un code QR statique ou dynamique via son application IvoirePay.</p>
                 </div>
 
                 <!-- Step 2 -->
@@ -223,7 +223,7 @@
                         <i class="fa-solid fa-qrcode text-3xl text-secondary group-hover:text-white transition-colors duration-500"></i>
                     </div>
                     <h4 class="text-xl font-bold mb-4">Scanner le code</h4>
-                    <p class="text-gray-600">Le client scanne le code QR avec son téléphone en utilisant QR Pay ou son scanner habituel.</p>
+                    <p class="text-gray-600">Le client scanne le code QR avec son téléphone en utilisant IvoirePay ou son scanner habituel.</p>
                 </div>
 
                 <!-- Step 3 -->
@@ -362,7 +362,7 @@
     </section>
 
     <!-- CONTACT FORM -->
-    <section id="contact" class="py-24 bg-white relative">
+    <section id="contact" class="py-24 bg-white relative overflow-x-clip">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid lg:grid-cols-2 gap-16 items-start">
                 <div data-aos="fade-right">
@@ -387,7 +387,7 @@
                             </div>
                             <div>
                                 <div class="text-sm text-gray-500 uppercase font-bold tracking-wider">Email</div>
-                                <div class="font-bold">contact@qrpay.ci</div>
+                                <div class="font-bold">contact@ivoirepay.ci</div>
                             </div>
                         </div>
                         <div class="flex items-center gap-4">
@@ -495,7 +495,7 @@
             </div>
 
             <div class="pt-10 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6 text-white/40 text-xs text-center">
-                <p>&copy; 2026 QR Pay. Tous droits réservés.</p>
+                <p>&copy; 2026 IvoirePay. Tous droits réservés.</p>
                 <p>Propulsé par la Tech de l'UEMOA</p>
             </div>
         </div>

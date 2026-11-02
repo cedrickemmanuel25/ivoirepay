@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IvoirePay — Démonstration visuelle</title>
+  <meta name="description" content="IvoirePay : paiement marchand par QR code. Backend Laravel, back-office web et application mobile Flutter. Captures réelles et architecture.">
+  <meta property="og:title" content="IvoirePay — paiement par QR code (Laravel + Flutter)">
+  <meta property="og:description" content="Captures réelles de la landing page et de l'application mobile, architecture et documentation.">
+  <meta property="og:image" content="screenshots/ivoirepay-landing-desktop.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="demo/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar__inner">
+      <a class="brand" href="#top" aria-label="IvoirePay, haut de page">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm10-2h2v2h-2v-2zm-2 2h2v2h-2v-2zm4 2h2v2h-2v-2zm-2 2h2v2h-2v-2zm4-4h2v2h-2v-2zm0 4h2v2h-2v-2z"/></svg>
+        </span>
+        IvoirePay
+      </a>
+      <nav class="topnav" aria-label="Sections">
+        <a href="#apercu">Aperçu</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#fonctionnalites">Fonctionnalités</a>
+        <a class="btn btn--ghost" href="https://github.com/cedrickemmanuel25/ivoirepay">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap">
+        <p class="eyebrow">Projet full-stack · Laravel · Flutter · MySQL</p>
+        <h1>Le paiement marchand par&nbsp;QR&nbsp;code, du serveur au téléphone.</h1>
+        <p class="lead">
+          IvoirePay réunit une API REST Laravel, un back-office web d'exploitation et une application
+          mobile Flutter pour clients et commerçants. Un QR code par commerçant, un PIN pour confirmer, cinq portefeuilles mobile money.
+        </p>
+        <div class="actions">
+          <a class="btn btn--primary" href="https://github.com/cedrickemmanuel25/ivoirepay">Voir le code source</a>
+          <a class="btn btn--ghost" href="https://github.com/cedrickemmanuel25/ivoirepay#readme">Documentation</a>
+          <a class="btn btn--ghost" href="https://github.com/cedrickemmanuel25/ivoirepay/blob/main/docs/PORTFOLIO_CASE_STUDY.md">Étude de cas</a>
+        </div>
+        <ul class="facts" aria-label="Chiffres du dépôt">
+          <li><strong>2</strong><span>applications, 1 dépôt</span></li>
+          <li><strong>39</strong><span>tests Laravel</span></li>
+          <li><strong>7</strong><span>tests Flutter</span></li>
+          <li><strong>5</strong><span>portefeuilles pris en charge</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="apercu" class="section">
+      <div class="wrap">
+        <div class="section__head">
+          <p class="eyebrow">Aperçu</p>
+          <h2>Deux captures, toutes deux réelles</h2>
+          <p class="muted">Aucune maquette : la landing est capturée avec Playwright, l'accueil mobile sur un appareil Android avec un compte de démonstration fictif. Cliquez pour agrandir.</p>
+        </div>
+
+        <div class="gallery">
+          <figure class="shot shot--web">
+            <button class="shot__open" type="button" data-open="dlg-landing" aria-label="Agrandir la capture de la landing page">
+              <span class="browser" aria-hidden="true"><i></i><i></i><i></i><em>ivoirepay — landing</em></span>
+              <span class="shot__scroll">
+                <img src="screenshots/ivoirepay-landing-desktop.png" alt="Landing page IvoirePay en pleine page : en-tête, fonctionnement, fonctionnalités, portefeuilles compatibles, contact et pied de page" width="1440" height="4163" loading="lazy">
+              </span>
+            </button>
+            <figcaption><strong>Landing page web</strong> — Blade, Tailwind, Alpine.js. Capture pleine page, viewport 1440 × 1024.</figcaption>
+          </figure>
+
+          <figure class="shot shot--mobile">
+            <button class="shot__open" type="button" data-open="dlg-mobile" aria-label="Agrandir la capture de l'application mobile">
+              <span class="phone">
+                <img src="screenshots/ivoirepay-mobile-home.png" alt="Écran d'accueil client de l'application mobile IvoirePay avec les dernières transactions" loading="lazy">
+              </span>
+            </button>
+            <figcaption><strong>Accueil client Flutter</strong> — appareil Android, après OTP et PIN ; données chargées depuis l'API Laravel locale.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture" class="section section--tint">
+      <div class="wrap">
+        <div class="section__head">
+          <p class="eyebrow">Architecture</p>
+          <h2>Un backend, deux interfaces</h2>
+          <p class="muted">Le téléphone parle JSON à l'API avec un jeton Sanctum ; l'équipe d'exploitation passe par le back-office web. La logique métier vit dans des services partagés.</p>
+        </div>
+
+        <ol class="flow" aria-label="Chaîne de traitement d'une requête mobile">
+          <li><span class="flow__k">Mobile</span><strong>Application Flutter</strong><span>Riverpod · go_router · Dio</span></li>
+          <li><span class="flow__k">HTTP</span><strong>API REST Laravel</strong><span>Sanctum · validation · /api/*</span></li>
+          <li><span class="flow__k">Métier</span><strong>Services</strong><span>paiement · QR · notifications · SMS · jobs</span></li>
+          <li><span class="flow__k">ORM</span><strong>Eloquent</strong><span>verrous de ligne · transactions SQL</span></li>
+          <li><span class="flow__k">Données</span><strong>MySQL</strong><span>utilisateurs · marchands · transactions · retraits</span></li>
+        </ol>
+
+        <div class="side">
+          <div class="card">
+            <h3>Back-office web</h3>
+            <p>Blade sur <code>/admin</code>, session réservée au rôle administrateur : KYC, transactions et exports, retraits, utilisateurs, notifications groupées.</p>
+          </div>
+          <div class="card">
+            <h3>Intégrations externes</h3>
+            <p>Yengapay (agrégateur mobile money, webhook signé HMAC) et Africa's Talking (SMS / OTP). <strong>Simulées</strong> dans la configuration fournie : aucun paiement réel.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="fonctionnalites" class="section">
+      <div class="wrap">
+        <div class="section__head">
+          <p class="eyebrow">Fonctionnalités</p>
+          <h2>Ce qui est implémenté</h2>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <h3>Client</h3>
+            <ul>
+              <li>Inscription par téléphone et OTP</li>
+              <li>Connexion par PIN, option biométrique</li>
+              <li>Scan du QR, choix du portefeuille, confirmation par PIN</li>
+              <li>Historique, détail et reçu PDF</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Commerçant</h3>
+            <ul>
+              <li>Dossier KYC avec pièces justificatives</li>
+              <li>QR code statique après validation</li>
+              <li>Tableau de bord et graphique sur 7 jours</li>
+              <li>Retraits protégés par PIN</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Fiabilité des paiements</h3>
+            <ul>
+              <li>Webhooks signés et idempotents</li>
+              <li>Crédit du solde sous verrou de ligne</li>
+              <li>Remboursement de retrait effectué une seule fois</li>
+              <li>Documents KYC privés, URL signées</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer__inner">
+      <p>IvoirePay — projet de portfolio de <a href="https://github.com/cedrickemmanuel25">@cedrickemmanuel25</a>. Données de démonstration fictives.</p>
+      <p><a href="https://github.com/cedrickemmanuel25/ivoirepay">Dépôt GitHub</a> · <a href="https://github.com/cedrickemmanuel25/ivoirepay/blob/main/docs/AUDIT_REPORT.md">Rapport d'audit</a></p>
+    </div>
+  </footer>
+
+  <dialog id="dlg-landing" class="viewer" aria-label="Landing page IvoirePay, capture pleine page">
+    <div class="viewer__bar"><span>Landing page — 1440 × 4163</span><button type="button" data-close aria-label="Fermer">✕</button></div>
+    <div class="viewer__body"><img src="screenshots/ivoirepay-landing-desktop.png" alt="Landing page IvoirePay en pleine page" width="1440" height="4163" loading="lazy"></div>
+  </dialog>
+  <dialog id="dlg-mobile" class="viewer viewer--mobile" aria-label="Écran d'accueil de l'application mobile IvoirePay">
+    <div class="viewer__bar"><span>Application mobile — accueil client</span><button type="button" data-close aria-label="Fermer">✕</button></div>
+    <div class="viewer__body"><img src="screenshots/ivoirepay-mobile-home.png" alt="Écran d'accueil client de l'application mobile IvoirePay" loading="lazy"></div>
+  </dialog>
+
+  <script>
+    document.querySelectorAll('[data-open]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var dlg = document.getElementById(btn.dataset.open);
+        if (dlg && dlg.showModal) { dlg.showModal(); dlg.querySelector('.viewer__body').scrollTop = 0; }
+      });
+    });
+    document.querySelectorAll('dialog.viewer').forEach(function (dlg) {
+      dlg.querySelector('[data-close]').addEventListener('click', function () { dlg.close(); });
+      // Click on the backdrop closes the viewer
+      dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+    });
+  </script>
+</body>
+</html>

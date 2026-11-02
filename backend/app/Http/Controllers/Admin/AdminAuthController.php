@@ -24,7 +24,8 @@ class AdminAuthController extends Controller
             'password' => 'required'
         ]);
 
-        if (Auth::guard('admin')->attempt($credentials, $request->remember)) {
+        // The admin guard shares the users table: only active accounts with the admin role may open a session
+        if (Auth::guard('admin')->attempt([...$credentials, 'role' => 'admin', 'is_active' => true], $request->remember)) {
             $request->session()->regenerate();
 
             ActivityLog::create([

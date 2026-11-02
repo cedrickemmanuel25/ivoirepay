@@ -9,6 +9,7 @@ use App\Models\Transaction;
 use App\Services\NotificationService;
 use App\Services\YengapayService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -78,37 +79,56 @@ class TransactionController extends Controller
             ->where('status', 'pending')
             ->firstOrFail();
 
-        $result = $this->yengapay->initiatePayment(
-            amount:       (float) $transaction->amount,
-            walletType:   $transaction->wallet_type,
-            walletNumber: $request->wallet_number,
-            reference:    $transaction->reference
-        );
-
-        if (($result['status'] ?? 'failed') === 'failed') {
-            $transaction->update(['status' => 'failed']);
-            return response()->json(['message' => $result['message'] ?? 'Échec du paiement.'], 422);
+        // Double-tap / retry protection: one provider request per transaction
+        $lock = Cache::lock("transaction-confirm:{$transaction->id}", 60);
+        if (! $lock->get()) {
+            return response()->json(['message' => 'Paiement déjà en cours de traitement.'], 409);
         }
 
-        $transaction->update([
-            'payment_provider_ref' => $result['provider_ref'] ?? null,
-            'status'               => 'pending',
-        ]);
+        try {
+            $transaction->refresh();
+            if ($transaction->status !== 'pending' || $transaction->payment_provider_ref) {
+                return response()->json(['message' => 'Paiement déjà initié pour cette transaction.'], 409);
+            }
 
-        // Automatiquement valider en LOCAL car le Webhook ne peut pas atteindre 127.0.0.1
-        if (config('app.env') === 'local' || config('app.debug')) {
-            $this->completeTransaction($transaction, $result);
-            return response()->json([
-                'message'   => 'Paiement simulé avec succès (Mode Local).',
-                'reference' => $transaction->reference,
-                'status'    => 'success'
+            // Mode simulation (local/démo) : aucun appel au fournisseur, le Webhook ne peut pas atteindre 127.0.0.1.
+            // Flag explicite (YENGAPAY_SIMULATE) : un APP_DEBUG oublié en production ne doit pas valider de faux paiements.
+            if (config('services.yengapay.simulate')) {
+                $result = ['status' => 'success', 'provider_ref' => 'SIMULATED-' . strtoupper(Str::random(10)), 'simulated' => true];
+                $transaction->update(['payment_provider_ref' => $result['provider_ref']]);
+                $this->completeTransaction($transaction, $result);
+
+                return response()->json([
+                    'message'   => 'Paiement simulé avec succès (Mode Local).',
+                    'reference' => $transaction->reference,
+                    'status'    => 'success'
+                ]);
+            }
+
+            $result = $this->yengapay->initiatePayment(
+                amount:       (float) $transaction->amount,
+                walletType:   $transaction->wallet_type,
+                walletNumber: $request->wallet_number,
+                reference:    $transaction->reference
+            );
+
+            if (($result['status'] ?? 'failed') === 'failed') {
+                $transaction->update(['status' => 'failed']);
+                return response()->json(['message' => $result['message'] ?? 'Échec du paiement.'], 422);
+            }
+
+            $transaction->update([
+                'payment_provider_ref' => $result['provider_ref'] ?? null,
+                'status'               => 'pending',
             ]);
-        }
 
-        return response()->json([
-            'message'   => 'Paiement initié. En attente de confirmation.',
-            'reference' => $transaction->reference,
-        ]);
+            return response()->json([
+                'message'   => 'Paiement initié. En attente de confirmation.',
+                'reference' => $transaction->reference,
+            ]);
+        } finally {
+            $lock->release();
+        }
     }
 
     // ─── Yengapay webhook ─────────────────────────────────────────────────────
@@ -140,8 +160,16 @@ class TransactionController extends Controller
 
         if ($newStatus === 'success') {
             $this->completeTransaction($transaction, $data);
-        } else {
-            $transaction->update(['status' => $newStatus, 'metadata' => $data]);
+        } elseif ($newStatus === 'failed') {
+            // Only a pending payment can fail: a late/replayed webhook must not overwrite a settled one
+            DB::transaction(function () use ($transaction, $data) {
+                $locked = Transaction::whereKey($transaction->id)->lockForUpdate()->first();
+                if ($locked->status === 'pending') {
+                    $locked->update(['status' => 'failed', 'metadata' => array_merge($locked->metadata ?? [], $data)]);
+                }
+            });
+        } elseif ($newStatus !== 'pending') {
+            return response()->json(['message' => 'Statut inconnu.'], 422);
         }
 
         return response()->json(['message' => 'Webhook traité.']);
@@ -153,7 +181,10 @@ class TransactionController extends Controller
     private function completeTransaction(Transaction $transaction, array $metadata)
     {
         DB::transaction(function () use ($transaction, $metadata) {
-            if ($transaction->status === 'success') return; // Déjà traitée
+            // Row lock: two concurrent webhooks / confirmations must not both credit the merchant
+            $transaction = Transaction::whereKey($transaction->id)->lockForUpdate()->first();
+
+            if (in_array($transaction->status, ['success', 'refunded'], true)) return; // Déjà traitée
 
             $commissionAmount = 0; // Commission retirée pour le client selon la demande
 
@@ -165,7 +196,7 @@ class TransactionController extends Controller
 
             // Credit merchant balance (net of commission)
             $netAmount = $transaction->amount - $commissionAmount;
-            $transaction->merchant()->increment('balance', $netAmount);
+            Merchant::whereKey($transaction->merchant_id)->increment('balance', $netAmount);
 
             // Notify via NotificationService (in-app + SMS)
             $this->notifications->notifyTransactionSuccess($transaction->fresh());

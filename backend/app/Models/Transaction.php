@@ -47,6 +47,7 @@ class Transaction extends Model
 
     public function scopeThisMonth($q)
     {
-        return $q->whereMonth('created_at', now()->month);
+        // Year included: otherwise "this month" also sums the same month of previous years
+        return $q->whereMonth('created_at', now()->month)->whereYear('created_at', now()->year);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\ProcessWithdrawalJob;
+use App\Models\Merchant;
 use App\Models\Setting;
 use App\Models\WithdrawalRequest;
 use App\Services\NotificationService;
@@ -11,6 +12,7 @@ use App\Services\QrCodeService;
 use App\Services\YengapayService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class MerchantController extends Controller
 {
@@ -147,6 +149,7 @@ class MerchantController extends Controller
             'amount'        => "required|numeric|min:{$minWithdrawal}",
             'wallet_number' => 'required|string',
             'wallet_type'   => 'required|in:wave,djamo,moov,orange,mtn',
+            'pin'           => 'required|string',
         ]);
 
         $merchant = $request->user()->merchant;
@@ -155,23 +158,37 @@ class MerchantController extends Controller
             return response()->json(['message' => 'KYC non validé.'], 403);
         }
 
-        if ($merchant->balance < $request->amount) {
+        // The app asks for the PIN before a withdrawal: it must be checked server-side
+        if (! Hash::check($request->pin, (string) $request->user()->pin_hash)) {
+            return response()->json(['message' => 'PIN incorrect.'], 403);
+        }
+
+        // Reserve the funds immediately — ProcessWithdrawalJob will refund on failure.
+        // Row lock so two simultaneous requests cannot both pass the balance check.
+        $withdrawal = DB::transaction(function () use ($merchant, $request) {
+            $locked = Merchant::whereKey($merchant->id)->lockForUpdate()->first();
+
+            if ($locked->balance < $request->amount) {
+                return null;
+            }
+
+            $locked->decrement('balance', $request->amount);
+
+            return WithdrawalRequest::create([
+                'merchant_id'   => $merchant->id,
+                'amount'        => $request->amount,
+                'wallet_number' => $request->wallet_number,
+                'wallet_type'   => $request->wallet_type,
+                'status'        => 'pending',
+            ]);
+        });
+
+        if (! $withdrawal) {
             return response()->json(['message' => 'Solde insuffisant.'], 422);
         }
 
-        // Reserve the funds immediately — ProcessWithdrawalJob will refund on failure
-        $merchant->decrement('balance', $request->amount);
-
-        $withdrawal = WithdrawalRequest::create([
-            'merchant_id'   => $merchant->id,
-            'amount'        => $request->amount,
-            'wallet_number' => $request->wallet_number,
-            'wallet_type'   => $request->wallet_type,
-            'status'        => 'pending',
-        ]);
-
-        // Dispatch handle — In local, process immediately. In prod, use Queue.
-        if (config('app.env') === 'local' || config('app.debug')) {
+        // Dispatch handle — simulation (local/démo): process immediately. Otherwise use Queue.
+        if (config('services.yengapay.simulate')) {
             $this->completeWithdrawal($withdrawal);
         } else {
             ProcessWithdrawalJob::dispatch($withdrawal);

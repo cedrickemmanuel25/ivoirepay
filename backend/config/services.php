@@ -47,6 +47,10 @@ return [
         'project_id' => env('YENGAPAY_PROJECT_ID'),
         'base_url' => env('YENGAPAY_BASE_URL'),
         'webhook_secret' => env('YENGAPAY_WEBHOOK_SECRET'),
+        // Settle payments / withdrawals locally without calling the provider (dev & demo only).
+        // Explicit flag: APP_DEBUG alone must never fake money movements.
+        'simulate' => (bool) env('YENGAPAY_SIMULATE', env('APP_ENV') === 'local'),
+        'verify_ssl' => (bool) env('YENGAPAY_VERIFY_SSL', true),
     ],
 
 ];

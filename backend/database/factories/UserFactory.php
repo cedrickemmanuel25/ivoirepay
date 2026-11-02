@@ -18,6 +18,7 @@ class UserFactory extends Factory
 
     /**
      * Define the model's default state.
+     * Users authenticate with phone + PIN (stored in pin_hash). Default PIN: 1234.
      *
      * @return array<string, mixed>
      */
@@ -25,11 +26,28 @@ class UserFactory extends Factory
     {
         return [
             'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
+            // Fictitious numbers in the +2250000xxxxxx range (not an allocated Ivorian prefix), never real subscribers
+            'phone' => '+2250000' . fake()->unique()->numerify('######'),
+            'email' => null,
+            'role' => 'client',
+            'pin_hash' => static::$password ??= Hash::make('1234'),
+            'is_active' => true,
+            'phone_verified_at' => now(),
             'remember_token' => Str::random(10),
         ];
+    }
+
+    public function merchant(): static
+    {
+        return $this->state(fn (array $attributes) => ['role' => 'merchant']);
+    }
+
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'admin',
+            'email' => fake()->unique()->safeEmail(),
+        ]);
     }
 
     /**
@@ -38,7 +56,7 @@ class UserFactory extends Factory
     public function unverified(): static
     {
         return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
+            'phone_verified_at' => null,
         ]);
     }
 }

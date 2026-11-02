@@ -14,10 +14,11 @@ class YengapayService
 
     public function __construct()
     {
-        $this->baseUrl        = rtrim(config('services.yengapay.base_url'), '/');
-        $this->apiKey         = config('services.yengapay.api_key');
-        $this->organizationId = config('services.yengapay.organization_id');
-        $this->projectId      = config('services.yengapay.project_id');
+        // Cast: an unconfigured provider must not crash every controller that injects this service
+        $this->baseUrl        = rtrim((string) config('services.yengapay.base_url'), '/');
+        $this->apiKey         = (string) config('services.yengapay.api_key');
+        $this->organizationId = (string) config('services.yengapay.organization_id');
+        $this->projectId      = (string) config('services.yengapay.project_id');
     }
 
     // ─── Initiate a payment request sent to the customer wallet ──────────────
@@ -42,7 +43,7 @@ class YengapayService
             $response = Http::withHeaders([
                     'x-api-key' => $this->apiKey,
                 ])
-                ->withoutVerifying()
+                ->withOptions(['verify' => (bool) config('services.yengapay.verify_ssl', true)])
                 ->post($url, [
                     'paymentAmount' => (int) $amount,
                     'reference'     => $reference,
@@ -131,7 +132,13 @@ class YengapayService
 
     public function verifyWebhookSignature(string $payload, string $signature): bool
     {
-        $secret   = config('services.yengapay.webhook_secret');
+        $secret = (string) config('services.yengapay.webhook_secret');
+
+        // No secret configured = anyone could sign with an empty key: refuse everything
+        if ($secret === '' || $signature === '') {
+            return false;
+        }
+
         $expected = hash_hmac('sha256', $payload, $secret);
         return hash_equals($expected, $signature);
     }

@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ProcessWithdrawalJob implements ShouldQueue
@@ -30,12 +31,20 @@ class ProcessWithdrawalJob implements ShouldQueue
     {
         $withdrawal = $this->withdrawal->fresh();
 
-        // Guard: skip if already resolved (idempotency)
-        if (! in_array($withdrawal->status, ['pending', 'processing'])) {
+        // Guard (idempotency): atomically claim a pending withdrawal. A 'processing' one belongs to
+        // another worker unless this job is retrying its own attempt — never send a second payout.
+        if ($withdrawal->status === 'pending') {
+            $claimed = WithdrawalRequest::whereKey($withdrawal->id)
+                ->where('status', 'pending')
+                ->update(['status' => 'processing']);
+
+            if (! $claimed) {
+                return;
+            }
+            $withdrawal->refresh();
+        } elseif (! ($withdrawal->status === 'processing' && $this->attempts() > 1)) {
             return;
         }
-
-        $withdrawal->update(['status' => 'processing']);
 
         try {
             $result = $yengapay->initiateWithdrawal(
@@ -78,11 +87,22 @@ class ProcessWithdrawalJob implements ShouldQueue
 
     private function markFailed(WithdrawalRequest $withdrawal, string $reason): void
     {
-        $withdrawal->update(['status' => 'failed']);
+        // Conditional update + refund in one DB transaction: a withdrawal is refunded at most once
+        $refunded = DB::transaction(function () use ($withdrawal) {
+            $updated = WithdrawalRequest::whereKey($withdrawal->id)
+                ->whereIn('status', ['pending', 'processing'])
+                ->update(['status' => 'failed']);
 
-        // Refund the merchant's balance since the withdrawal did not go through
-        $withdrawal->merchant()->increment('balance', $withdrawal->amount);
+            if ($updated) {
+                // Refund the merchant's balance since the withdrawal did not go through
+                $withdrawal->merchant()->increment('balance', $withdrawal->amount);
+            }
 
-        Log::warning("Withdrawal #{$withdrawal->id} failed. Balance refunded. Reason: {$reason}");
+            return (bool) $updated;
+        });
+
+        if ($refunded) {
+            Log::warning("Withdrawal #{$withdrawal->id} failed. Balance refunded. Reason: {$reason}");
+        }
     }
 }

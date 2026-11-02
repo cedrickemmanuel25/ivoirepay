@@ -12,10 +12,10 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\User::create([
+        // firstOrCreate: seeding twice must not fail on the unique email/phone
+        \App\Models\User::firstOrCreate(['email' => 'admin@ivoirepay.ci'], [
             'name' => 'Admin IvoirePay',
             'phone' => '2250000000000',
-            'email' => 'admin@ivoirepay.ci',
             'role' => 'admin',
             'pin_hash' => \Illuminate\Support\Facades\Hash::make('123456'),
             'is_active' => true,
